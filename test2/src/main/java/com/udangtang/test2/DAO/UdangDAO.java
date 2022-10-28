@@ -61,7 +61,7 @@ public interface UdangDAO {
 
     // 내용 생성 Contents
     @Insert("INSERT INTO testDB.contents (roomNum, meetNum, contentsText, contentsTime, contentsWriter) VALUES (${roomNum}, ${meetNum}, '${contentsText}', '${contentsTime}', '${contentsWriter}')")
-    void createTest(RecordDTO recordDTO);
+    void createContents(RecordDTO recordDTO);
 
     //내용 바꾸기 Contents
     @Update("update contents set contentsText = #{contentsText} where roomNum = #{roomNum} and meetNum = #{meetNum} and contentsNum = #{contentsNum}")
@@ -77,11 +77,11 @@ public interface UdangDAO {
     void DeleteUser(UserDTO dto);
 
     // reply 추가
-    @Insert("INSERT INTO testDB.reply (roomNum, meetNum, replyText, replyWriter) VALUES (${roomNum}, ${meetNum}, '${replyText}', '${replyWriter}')")
+    @Insert("INSERT INTO testDB.reply (roomNum, meetNum, replyText, replyWriter, replyDate) VALUES (${roomNum}, ${meetNum}, '${replyText}', '${replyWriter}', '${replyDate}')")
     void createReply(CreateReplyDTO createReplyDTO);
 
     // reply 리스트 가져오기
-    @Select("select replyNum ,replyText , replyWriter , replyDate from reply where roomNum = #{roomNum} and meetNum=#{meetNum};")
+    @Select("select replyNum ,replyText , replyWriter , replyDate from testDB.reply where roomNum = #{roomNum} and meetNum=#{meetNum};")
     ArrayList<ReadReplyDTO> readReply(ReadReplyDTO readReplyDTO);
 
     // reply 수정
