@@ -139,13 +139,13 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
     // Contents 작성 c 음성인식이 완료되고 추후 설계
     @RequestMapping("yTest")
-    public String running(@RequestPart(value="file") MultipartFile file) throws IOException{
+    public String running(@RequestPart(value="file") MultipartFile file, @RequestPart(value="key") RecordDTO recordDTO) throws IOException{
         SttService sttService = new SttService();
         ArrayList<String> result = new ArrayList<>();
         String token = "";
         String resultId = "";
         String contentsText = "";
-        RecordDTO recordDTO = new RecordDTO();
+//        RecordDTO recordDTO = new RecordDTO();
 
 
         System.out.println(file);
@@ -159,6 +159,7 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
 //        // fileStream에 MultipartFile file의 데이터를 입력
         InputStream fileinputStream = file.getInputStream();
+
 //        // fileStream에 담긴 데이터를 convfile변수에 복사
         FileUtils.copyInputStreamToFile(fileinputStream, pcmFile);
 
@@ -185,13 +186,13 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
             // STT 결과값 dto의 contentsText에 세팅
             recordDTO.setContentsText(contentsText);
-            recordDTO.setRoomNum(1);
-            recordDTO.setMeetNum(2);
-            recordDTO.setContentsTime("23:30:00");
-            recordDTO.setContentsWriter("갸갸갹");
+//            recordDTO.setRoomNum(1);
+//            recordDTO.setMeetNum(2);
+//            recordDTO.setContentsTime("23:30:00");
+//            recordDTO.setContentsWriter("갸갸갹");
 
             // DAO로 DB연동(함수명 변경할것)
-            udangDAO.createTest(recordDTO);
+            udangDAO.createContents(recordDTO);
 
 
         } catch (Exception e) {

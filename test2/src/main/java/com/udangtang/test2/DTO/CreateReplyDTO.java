@@ -9,6 +9,7 @@ import java.util.Date;
 public class CreateReplyDTO {
     private int roomNum;
     private int meetNum;
+    private String replyDate;
     private String replyText;
     private String replyWriter;
 }
