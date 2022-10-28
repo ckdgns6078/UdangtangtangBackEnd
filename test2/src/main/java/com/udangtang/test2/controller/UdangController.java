@@ -2,19 +2,21 @@ package com.udangtang.test2.controller;
 
 import com.udangtang.test2.DAO.UdangDAO;
 import com.udangtang.test2.DTO.*;
+import com.udangtang.test2.service.SttService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletContext;
 
 @RestController
 public class UdangController {
-    private static final String DIRECTORY = "C:/PDF";
-    private static final String DEFAULT_FILE_NAME = "java-tutorial.pdf";
-    private ServletContext servletContext;
-
     @Autowired
     private UdangDAO udangDAO;
 
@@ -136,6 +138,69 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
 
     // Contents 작성 c 음성인식이 완료되고 추후 설계
+    @RequestMapping("yTest")
+    public String running(@RequestPart(value="file") MultipartFile file) throws IOException{
+        SttService sttService = new SttService();
+        ArrayList<String> result = new ArrayList<>();
+        String token = "";
+        String resultId = "";
+        String contentsText = "";
+        RecordDTO recordDTO = new RecordDTO();
+
+
+        System.out.println(file);
+
+        System.out.println("------------------");
+//        // 파일 path, 확장자명 설정
+        String tempPath ="C:\\fileTest" + "\\" + file.getOriginalFilename();
+
+//        // 해당 경로에 파일 생성
+        File pcmFile = new File(tempPath + ".pcm");
+
+//        // fileStream에 MultipartFile file의 데이터를 입력
+        InputStream fileinputStream = file.getInputStream();
+//        // fileStream에 담긴 데이터를 convfile변수에 복사
+        FileUtils.copyInputStreamToFile(fileinputStream, pcmFile);
+
+        System.out.println("--------< 프론트에서 넘어온 파일 변환 결과(pcmFile)...>----------");
+        System.out.println(pcmFile);
+
+        try {
+            System.out.println("--------<< STT 진행 중...>>----------");
+            token = sttService.test();                         // 토큰 만들기
+
+            resultId = sttService.run(token, pcmFile);         // 녹음 파일 ID 생성하기
+            System.out.println("--------< STT 후, ID...>----------");
+            System.out.println("resultID : " + resultId);
+
+            result = sttService.get(token, resultId);         // 녹음 파일 ID로 AI로 텍스트 json 형태로 저장하기
+            System.out.println("--------< STT 후, 결과값...>----------");
+            System.out.println(result);
+
+
+            for(String sResult : result){
+                contentsText += sResult + "\n";
+            }
+
+
+            // STT 결과값 dto의 contentsText에 세팅
+            recordDTO.setContentsText(contentsText);
+            recordDTO.setRoomNum(1);
+            recordDTO.setMeetNum(2);
+            recordDTO.setContentsTime("23:30:00");
+            recordDTO.setContentsWriter("갸갸갹");
+
+            // DAO로 DB연동(함수명 변경할것)
+            udangDAO.createTest(recordDTO);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("음성 파일 변환에 문제가 생겼습니다.");
+        }
+
+        return contentsText;
+    }
 
 
 

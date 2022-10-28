@@ -1,17 +1,20 @@
 package com.udangtang.test2.service;
 
-import org.apache.tomcat.util.json.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SttService {
     // 인증 토근값 추출(최초 1회용)
-    public void test() throws IOException {
+    public String test() throws IOException, JSONException{
         URL url = new URL("https://openapi.vito.ai/v1/authenticate");
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setRequestMethod("POST");
@@ -32,37 +35,58 @@ public class SttService {
         Scanner s = new Scanner(responseStream).useDelimiter("\\A");
         String response = s.hasNext() ? s.next() : "";
         s.close();
+
+
+        JSONObject jsonObject = new JSONObject(response);
+        System.out.println(jsonObject);
+        response = (String) jsonObject.get("access_token");
+
+        System.out.println("-----------------------");
         System.out.println(response);
+        System.out.println("-----------------------");
+        return response;
     }
 
 
 
     // 녹음 파일 분석 후, id값 추출(최초 1회용)
-    public String run() throws IOException {
+    public String run(String token, File sFile) throws IOException, JSONException {
+
         URL url = new URL("https://openapi.vito.ai/v1/transcribe");
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setRequestMethod("POST");
         httpConn.setRequestProperty("accept", "application/json");
-        httpConn.setRequestProperty("Authorization", "Bearer "+ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjYxNjQ4MjUsImlhdCI6MTY2NjE0MzIyNSwianRpIjoiajRIcElwWlI3OWZHLXhJdXYyUEoiLCJwbGFuIjoiYmFzaWMiLCJzY29wZSI6InNwZWVjaCIsInN1YiI6InhZY25qNmZhRzdpdXB1VXM0YklvIn0.5Wpx-iUXYVBvWi84mPyoe63M1JRpqSJLdfZZH0r_VOY");
+        httpConn.setRequestProperty("Authorization", "Bearer "+ token);
         httpConn.setRequestProperty("Content-Type", "multipart/form-data;boundary=authsample");
         httpConn.setDoOutput(true);
 
         // 음성 파일 넣어주기
-        File file = new File("C:\\intelij_workspace\\test2\\src\\main\\java\\com\\udangtang\\test2\\sample5.mp3");
+//        File file = new File("./sample6.mp3");
+        File file = sFile;
 
         DataOutputStream outputStream;
         outputStream = new DataOutputStream(httpConn.getOutputStream());
 
         outputStream.writeBytes("--authsample\r\n");
         outputStream.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() +"\"\r\n");
+        System.out.println(file.getName());
         outputStream.writeBytes("Content-Type: " + URLConnection.guessContentTypeFromName(file.getName()) + "\r\n");
         outputStream.writeBytes("Content-Transfer-Encoding: binary" + "\r\n");
         outputStream.writeBytes("\r\n");
+        System.out.println("========< STT 정제 파일...>========");
+        System.out.println(file);
 
         FileInputStream in =new FileInputStream(file);
         byte[] buffer = new byte[(int)file.length()];
+
+        System.out.println("========< STT 정제 파일의 buffer...>========");
+        System.out.println(buffer);
+
         int bytesRead = -1;
         while ((bytesRead = in.read(buffer)) != -1) {
+            System.out.println("--------------bytesRead");
+            System.out.println(bytesRead);
+            System.out.println("--------------bytesRead");
             outputStream.write(buffer,0,bytesRead);
             outputStream.writeBytes("\r\n");
             outputStream.writeBytes("--authsample\r\n");
@@ -96,9 +120,9 @@ public class SttService {
         String response = s.hasNext() ? s.next() : "";
         s.close();
 
-        System.out.println("-----------------------");
-        System.out.println(response);
-        System.out.println("-----------------------");
+        JSONObject jsonObject = new JSONObject(response);
+        System.out.println(jsonObject);
+        response = (String) jsonObject.get("id");
 
         return response;
     }
@@ -106,27 +130,50 @@ public class SttService {
 
 
     // 녹음한 내용 가져오기
-    public Boolean get(String resultID) throws IOException {
-        Boolean check = false;
+    public ArrayList<String> get(String token, String resultID) throws IOException {
+        // 문단 별로 담을 list
+        ArrayList<String> resultList = new ArrayList<>();
+        // STT 결과를 담을 변수 response
+        String response = "";
 
-        URL url = new URL("https://openapi.vito.ai/v1/transcribe/"+"V6UInepdRF2gGNa9jPLmAg");
-        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-        httpConn.setRequestMethod("GET");
-        httpConn.setRequestProperty("accept", "application/json");
-        httpConn.setRequestProperty("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjYxNjQ4MjUsImlhdCI6MTY2NjE0MzIyNSwianRpIjoiajRIcElwWlI3OWZHLXhJdXYyUEoiLCJwbGFuIjoiYmFzaWMiLCJzY29wZSI6InNwZWVjaCIsInN1YiI6InhZY25qNmZhRzdpdXB1VXM0YklvIn0.5Wpx-iUXYVBvWi84mPyoe63M1JRpqSJLdfZZH0r_VOY");
+        while(true){
+            URL url = new URL("https://openapi.vito.ai/v1/transcribe/"+resultID);
+            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setRequestMethod("GET");
+            httpConn.setRequestProperty("accept", "application/json");
+            httpConn.setRequestProperty("Authorization", "Bearer " + token);
 
-        InputStream responseStream = httpConn.getResponseCode() / 100 == 2
-                ? httpConn.getInputStream()
-                : httpConn.getErrorStream();
-        Scanner s = new Scanner(responseStream).useDelimiter("\\A");
-        String response = s.hasNext() ? s.next() : "";
-        s.close();
+            InputStream responseStream = httpConn.getResponseCode() / 100 == 2
+                    ? httpConn.getInputStream()
+                    : httpConn.getErrorStream();
+            Scanner s = new Scanner(responseStream).useDelimiter("\\A");
+            response = s.hasNext() ? s.next() : "";
+            s.close();
 
-        System.out.println("-----------------------result");
-        System.out.println(response);
-        check = true;
-        System.out.println("-----------------------result");
+            System.out.println("========< STT Result...>========");
+            System.out.println(response);
 
-        return check;
+            // 만약 변환 중이 아닐 경우, 무한반복 break;
+            if (!response.contains("transcribing")) {
+                break;
+            }
+        }
+
+        // 필요한 value 값으로 정제 중..
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = new JSONArray();
+            System.out.println(jsonObject);
+            jsonObject = jsonObject.getJSONObject("results");   // 결과 ex) [{"msg":"매일 매순간 우리는"}]
+            jsonArray = jsonObject.getJSONArray("utterances");  // 결과 ex) {"msg":"매일 매순간 우리는"}
+
+            for(int i=0; i<jsonArray.length(); i++){
+                resultList.add(jsonArray.getJSONObject(i).getString("msg"));    // 결과 ex) "매일 매순간 우리는"
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return resultList;
     }
 }

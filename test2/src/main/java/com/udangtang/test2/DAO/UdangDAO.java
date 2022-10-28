@@ -59,6 +59,9 @@ public interface UdangDAO {
     void deleteFromMeetingReply(DeleteMeetingDTO deleteMeetingDTO);
 
 
+    // 내용 생성 Contents
+    @Insert("INSERT INTO testDB.contents (roomNum, meetNum, contentsText, contentsTime, contentsWriter) VALUES (${roomNum}, ${meetNum}, '${contentsText}', '${contentsTime}', '${contentsWriter}')")
+    void createTest(RecordDTO recordDTO);
 
     //내용 바꾸기 Contents
     @Update("update contents set contentsText = #{contentsText} where roomNum = #{roomNum} and meetNum = #{meetNum} and contentsNum = #{contentsNum}")
