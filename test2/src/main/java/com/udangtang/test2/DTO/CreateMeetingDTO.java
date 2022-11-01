@@ -10,5 +10,6 @@ public class CreateMeetingDTO {
     private int roomNum;
     private int meetNum;
     private String meetTitle;
-    private Date meetDate;
+    private String meetDate;
+    private int meetingRoomNum;
 }

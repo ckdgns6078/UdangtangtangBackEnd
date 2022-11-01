@@ -154,7 +154,7 @@ public class SttService {
             System.out.println(response);
 
             // 만약 변환 중이 아닐 경우, 무한반복 break;
-            if (!response.contains("transcribing")) {
+            if(response.contains("completed")) {
                 break;
             }
         }

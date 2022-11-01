@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReadRoomDTO {
+    private int roomNum;
     private String id;
-
 }

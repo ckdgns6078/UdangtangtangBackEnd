@@ -20,6 +20,7 @@ public class SocketModule {
         this.server = server;
         this.socketService = socketService;
 
+
         // 누군가 소켓에 연결할 때 트리거
         server.addConnectListener(onConnected());
         // 누군가 소켓에서 연결을 끊을 때 트리거
@@ -36,27 +37,44 @@ public class SocketModule {
 
         // record 라는 키워들 받았다면, 메세지를 보낸다.
         server.addEventListener("message", Record.class, onStt());
+
+
     }
 
 
     // record 라는 키워드를 받았다면,
     private DataListener<Record> onStt(){
         return (senderClient, data, ackSender) -> {
+            System.out.println("record 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             log.info(data.toString());
             socketService.sendMessageRecord(data.getRoom(),"responseRecord", senderClient, data.getContentsText());
         };
     }
 
 
+//    private DataListener<Message> onChatReceived() {
+//        System.out.println("join_room 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//        log.info("=======================================================================");
+//        return (senderClient, data, ackSender) -> {
+//            System.out.println("join_room 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//            log.info("join_room 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ", senderClient);
+//            log.info(data.toString());
+////            socketService.sendMessageRoom(data.getRoom(),"welcome", senderClient, data.getRoom());
+//            senderClient.getNamespace().getBroadcastOperations().sendEvent("welcome", data.getRoom());
+////            socketService.sendMessage(data.getRoom(),"welcome", senderClient, data.getRoom());
+//        };
+//    }
+
     private DataListener<Message> onChatReceived() {
         return (senderClient, data, ackSender) -> {
             log.info(data.toString());
-            socketService.sendMessageRoom(data.getRoom(),"welcome", senderClient, data.getRoom());
+            socketService.sendMessage(data.getRoom(),"get_message", senderClient, data.getRoom());
         };
     }
 
     private DataListener<Offer> onOfferReceived() {
         return (senderClient, data, ackSender) -> {
+            System.out.println("offer 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             log.info(data.toString());
             socketService.sendMessageOffer(data.getRoom(),"offer", senderClient, data.getOffer());
         };
@@ -64,12 +82,14 @@ public class SocketModule {
 
     private DataListener<Answer> onAnswerReceived() {
         return (senderClient, data, ackSender) -> {
+            System.out.println("answer 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             log.info(data.toString());
             socketService.sendMessageAnswer(data.getRoom(),"answer", senderClient, data.getAnswer());
         };
     }
 
     private DataListener<Ice> onIceReceived() {
+        System.out.println("ice 입니다~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         return (senderClient, data, ackSender) -> {
             log.info(data.toString());
             socketService.sendMessageIce(data.getRoom(),"ice", senderClient, data.getIce());

@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.ServletContext;
 
 @RestController
 public class UdangController {
@@ -41,7 +41,8 @@ public class UdangController {
         }
 
     }
-    //방 생성   c
+
+    // 방 생성   c
     @PostMapping("createRoom")
     public boolean createRoom(@RequestBody CreateRoomDTO createRoomDTO){
         //session 검사 method
@@ -55,7 +56,7 @@ public class UdangController {
         return false;
     }
 
-    //방 입장
+    // 방 입장
     @PostMapping("joinRoom")
     public boolean joinRoom(@RequestBody JoinRoomDTO joinRoomDTO){
         try{
@@ -72,7 +73,39 @@ public class UdangController {
         }
     }
 
-//    //방 목록 가져오기  r
+
+    // 방 탈퇴(호스트x) list 불러오기
+    @PostMapping("outReadRoom")
+    public ArrayList<SettingReadRoomDTO> outRoomList(@RequestBody SettingReadRoomDTO settingReadRoomDTO){
+        System.out.println(settingReadRoomDTO.getId());
+        ArrayList<SettingReadRoomDTO> outRoomList = new ArrayList<>();
+        try {
+            outRoomList = udangDAO.outReadRoom(settingReadRoomDTO);
+            return outRoomList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    // 방 탈퇴하기
+    @PostMapping("outRoom")
+    public boolean outRoom(@RequestBody ReadRoomDTO readRoomDTO){
+        // 매개변수로 id와 roomNum값을 받는다.
+        try{
+            udangDAO.readForOutRoom(readRoomDTO);
+            udangDAO.updateOutRoom(readRoomDTO);
+            return true;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
+    //방 목록 가져오기  r
     @PostMapping("readRoom")
     public List readRoom(@RequestBody ReadRoomDTO readRoomDTO) {
         ArrayList<ReadRoomRDTO> list = new ArrayList<>();
@@ -85,16 +118,150 @@ public class UdangController {
             return null;
         }
     }
-//    // 방 목록 삭제   d
-//    @PostMapping("/DeleteRoom")
-//    public boolean DeleteRoom(){
-//
+
+
+    // 방 목록 삭제   d
+//    @PostMapping("deleteRoom")
+//    public boolean DeleteRoom(@RequestBody OutRoomDTO outRoomDTO){
+//        try {
+//            udangDAO.outRoomReply(outRoomDTO);
+//            udangDAO.outRoomMeeting(outRoomDTO);
+//            udangDAO.outRoomContents(outRoomDTO);
+//            udangDAO.outRoomMeetingRoom(outRoomDTO);
+//            udangDAO.outRoom(outRoomDTO);
+//            udangDAO.outRoomList(outRoomDTO);
+//            return true;
+//        }catch(Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
 //    }
-// meeting 생성  c
-@PostMapping("createMeeting")
-public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
+
+    //방 수정 host o ( 방 이름만 수정 )
+    @PostMapping("updateReadRoom")
+    public ArrayList<UpdateRoomDTO> updateReadRoom(@RequestBody UpdateRoomDTO updateRoomDTO){
+        ArrayList<UpdateRoomDTO> list;
+        try{
+            list = udangDAO.updateReadRoom(updateRoomDTO);
+            return list;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    @PostMapping("updateRoom") // roomNum , roomName
+    public boolean updateRoom(@RequestBody UpdateRoomDTO updateRoomDTO){
+        // 입력한 key값
+        String key = updateRoomDTO.getRoomKey();
+        // 입력한 pw값
+        String pw = updateRoomDTO.getRoomPw();
+        // 입력한 roomNum값
+        int requestNum = updateRoomDTO.getRoomNum();
+        // 입력한 roomName값
+        String roomName = updateRoomDTO.getRoomName();
+
+        System.out.println("========================================1");
+        System.out.println("key: " + key);
+        System.out.println("pw: " + pw);
+        System.out.println("roomName: " + roomName);
+        System.out.println("requestNum: " + requestNum);
+        System.out.println("========================================1");
+        ArrayList<UpdateRoomDTO> list;
+
+        // SELECT(결과값 arraylist인데 getRoomKey 가져왔을 때 어떻게 처리하려나)
+        udangDAO.updateCheckRoom(updateRoomDTO);
+        System.out.println("========================================2");
+        System.out.println("key: " + updateRoomDTO.getRoomKey());
+        System.out.println("pw: " + updateRoomDTO.getRoomPw());
+        System.out.println("roomName: " + updateRoomDTO.getRoomName());
+        System.out.println("========================================2");
+        if(key.equals(updateRoomDTO.getRoomKey()) && pw.equals(updateRoomDTO.getRoomPw())){
+            try{
+                // 입력한 roomName값을 넣어준다.
+                updateRoomDTO.setRoomName(roomName);
+                System.out.println("========================================3");
+                System.out.println("key: " + updateRoomDTO.getRoomKey());
+                System.out.println("pw: " + updateRoomDTO.getRoomPw());
+                System.out.println("roomName: " + updateRoomDTO.getRoomName());
+                System.out.println("========================================3");
+                udangDAO.updateRoom(updateRoomDTO);
+                return true;
+            }catch(Exception e){
+                e.printStackTrace();
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    // roomNum meetingRoom delete 하기 위해 목록주기
+    @PostMapping("deleteReadRoom")
+    public ArrayList<DeleteRoomDTO> deleteReadRoom(@RequestBody DeleteRoomDTO deleteRoomDTO){
+        ArrayList<DeleteRoomDTO> list;
+        try{
+            list = udangDAO.deleteReadRoom(deleteRoomDTO);
+            return list;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PostMapping("deleteRoom")
+    public boolean deleteRoom(@RequestBody DeleteRoomDTO deleteRoomDTO){
+        try{
+            udangDAO.deleteRoom(deleteRoomDTO);
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    // meeting 리스트 불러오기
+    @PostMapping("updateReadMeeting") // roomNum
+    public ArrayList<UpdateMeetingDTO> updateReadMeeting(@RequestBody UpdateMeetingDTO updateMeetingDTO){
+        ArrayList<UpdateMeetingDTO> list;
+        try{
+            list = udangDAO.updateReadMeeting(updateMeetingDTO);
+            return list;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // meeting에 있는 회의들 수정
+    @PostMapping("updateMeeting")   // roomNum, meetRoom
+    public boolean updateMeeting(@RequestBody UpdateMeetingDTO updateMeetingDTO){
+        try{
+            udangDAO.updateMeeting(updateMeetingDTO);
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+    // meeting 생성  c
+    @PostMapping("createMeeting")
+    public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
     try{
         udangDAO.createMeeting(createMeetingDTO);
+        udangDAO.EndMeeting(createMeetingDTO);
         return true;
     }catch (Exception e){
         e.printStackTrace();
@@ -138,7 +305,7 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
 
     // Contents 작성 c 음성인식이 완료되고 추후 설계
-    @RequestMapping("yTest")
+    @PostMapping("yTest")
     public String running(@RequestPart(value="file") MultipartFile file, @RequestPart(value="key") RecordDTO recordDTO) throws IOException{
         SttService sttService = new SttService();
         ArrayList<String> result = new ArrayList<>();
@@ -180,7 +347,7 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
 
 
             for(String sResult : result){
-                contentsText += sResult + "\n";
+                contentsText += sResult + "/";
             }
 
 
@@ -229,7 +396,7 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
         }catch(Exception e){
             e.printStackTrace();
             return false;
-        }
+    }
 
 
     }
@@ -291,6 +458,9 @@ public Boolean createMeeting(@RequestBody CreateMeetingDTO createMeetingDTO) {
     @PostMapping("deleteReply")
     public boolean deleteReply(@RequestBody DeleteReplyDTO deleteReplyDTO) {
         try {
+            System.out.println(deleteReplyDTO.getRoomNum());
+            System.out.println(deleteReplyDTO.getMeetNum());
+            System.out.println(deleteReplyDTO.getReplyWriter());
             udangDAO.deleteReply(deleteReplyDTO);
             return true;
         }catch (Exception e){

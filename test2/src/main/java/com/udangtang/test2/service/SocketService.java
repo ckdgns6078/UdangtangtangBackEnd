@@ -12,16 +12,37 @@ public class SocketService {
     // room : 메시지를 받을 방, eventName : 메시지를 받을 이벤트,
     // SocketIOClient senderClient : 메시지를 보내고 싶은 사람(방에 메시지를 보내는 동안은 제외)
     // message : 메시지
-    public void sendMessageRoom(String room, String eventName, SocketIOClient senderClient, String roomData) {
-        // 이 for 반복문을 통해 주어진 방의 모든 사용자를 얻는다.
+//    public void sendMessageRoom(String room, String eventName, SocketIOClient senderClient, String roomData) {
+//        // 이 for 반복문을 통해 주어진 방의 모든 사용자를 얻는다.
+//        for (
+//                SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
+//            if (!client.getSessionId().equals(senderClient.getSessionId())) {
+//                client.sendEvent(eventName,
+//                        new Message(roomData));
+//            }
+//        }
+//    }
+
+
+
+
+
+//    public void sendMessage(SocketIOClient client, String eventName, String message) {
+//        client.sendEvent(eventName, "이게 맞냐");
+//    }
+
+
+    public void sendMessage(String room,String eventName, SocketIOClient senderClient, String message) {
         for (
                 SocketIOClient client : senderClient.getNamespace().getRoomOperations(room).getClients()) {
             if (!client.getSessionId().equals(senderClient.getSessionId())) {
                 client.sendEvent(eventName,
-                        new Message(roomData));
+                        new Message(message));
             }
         }
     }
+
+
 
     public void sendMessageOffer(String room, String eventName, SocketIOClient senderClient, String offer) {
         // 이 for 반복문을 통해 주어진 방의 모든 사용자를 얻는다.

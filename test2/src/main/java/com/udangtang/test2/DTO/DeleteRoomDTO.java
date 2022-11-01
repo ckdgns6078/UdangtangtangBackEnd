@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Data
-@Getter
-@Setter
-public class ReadRoomRDTO {
+public class DeleteRoomDTO {
+    private String roomHost; //request 값
     private int roomNum;
     private String roomName;
-    private String roomHost;
-    private int roomMember;
+    private String roomKey;
+    private String roomPw;
+    private String roomMember;
 }
