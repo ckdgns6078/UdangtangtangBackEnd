@@ -92,11 +92,16 @@ public class UdangController {
     // 방 탈퇴하기
     @PostMapping("outRoom")
     public boolean outRoom(@RequestBody ReadRoomDTO readRoomDTO){
+        int checkNum = 0;
         // 매개변수로 id와 roomNum값을 받는다.
         try{
-            udangDAO.readForOutRoom(readRoomDTO);
-            udangDAO.updateOutRoom(readRoomDTO);
-            return true;
+            checkNum = udangDAO.readForOutRoom(readRoomDTO);   // list에서 삭제됨.
+            if(checkNum > 0){
+                udangDAO.updateOutRoom(readRoomDTO);
+                return true;
+            }else{
+                return false;
+            }
         }catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -445,9 +450,14 @@ public class UdangController {
     // reply 수정 u
     @PostMapping("updateReply")
     public boolean updateReply(@RequestBody UpdateReplyDTO updateReplyDTO) {
+        int checkNum = 0;
         try {
-            udangDAO.updateReply(updateReplyDTO);
-            return true;
+            checkNum = udangDAO.updateReply(updateReplyDTO);
+            if(checkNum > 0){
+                return true;
+            }else{
+                return false;
+            }
         }catch (Exception e){
             e.printStackTrace();
             return false;

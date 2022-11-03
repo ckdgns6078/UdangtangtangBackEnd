@@ -44,7 +44,7 @@ public interface UdangDAO {
 
     // 방 탈퇴하기(delete)
     @Delete("DELETE FROM testDB.list WHERE roomNum = #{roomNum} AND id = #{id}")
-    boolean readForOutRoom(ReadRoomDTO readRoomDTO);
+    int readForOutRoom(ReadRoomDTO readRoomDTO);
 
     // 방 탈퇴 후, room테이블의 roomMember Update
     @Update("Update testDB.room set roomMember = roomMember-1 WHERE roomNum = #{roomNum}")
@@ -168,8 +168,8 @@ public interface UdangDAO {
     ArrayList<ReadReplyDTO> readReply(ReadReplyDTO readReplyDTO);
 
     // reply 수정
-    @Update("UPDATE testDB.reply SET replyText = #{replyText} WHERE roomNum = #{roomNum} AND meetNum = #{meetNum} AND replyNum = #{replyNum}")
-    void updateReply(UpdateReplyDTO updateReplyDTO);
+    @Update("UPDATE testDB.reply SET replyText = #{replyText} WHERE roomNum = #{roomNum} AND meetNum = #{meetNum} AND replyNum = #{replyNum} AND replyWriter = #{replyWriter}")
+    int updateReply(UpdateReplyDTO updateReplyDTO);
 
     // reply 삭제
     @Delete("DELETE FROM testDB.reply WHERE roomNum = #{roomNum} AND meetNum = #{meetNum} AND replyNum = #{replyNum}")
