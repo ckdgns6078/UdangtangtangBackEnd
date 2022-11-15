@@ -74,6 +74,14 @@ public interface UdangDAO {
     boolean outRoomList(OutRoomDTO outRoomDTO);
 
 
+    // [search] 방 찾기
+    @Select("select roomNum , roomName , roomHost , roomMember from testDB.room where roomNum in ( select roomNum from testDB.list where id = #{id}) " +
+                "AND roomName like '%${roomName}%'")
+    ArrayList<ReadRoomRDTO> searchRoom(ReadRoomRDTO dto);
+
+    // [search] 회의목록 찾기
+    @Select("SELECT r.roomName , m.meetNum , m.meetTitle , m.meetDate FROM testDB.room as r left join testDB.meeting as m on r.roomNum = m.roomNum where r.roomNum = #{roomNum} AND m.meetTitle like '%${meetTitle}%'")
+    ArrayList<ReadMeetingDTO> searchMeeting(ReadMeetingDTO dto);
 
 
     // createRoom 했던 방들 리스트 불러오기
@@ -121,7 +129,7 @@ public interface UdangDAO {
 
 
     // meeting 생성
-    @Insert("INSERT INTO testDB.meeting (roomNum, meetTitle, meetDate) VALUES (#{roomNum}, #{meetTitle}, #{meetDate})")
+    @Insert("INSERT INTO testDB.meeting (roomNum, meetTitle, meetDate, meetId) VALUES (#{roomNum}, #{meetTitle}, #{meetDate}, #{meetId})")
     void createMeeting(CreateMeetingDTO createMeetingDTO);
 
 
@@ -132,7 +140,7 @@ public interface UdangDAO {
 
     // meeting 가져오기
     // 들어온 roomNum와 같은 방의 정보들 SELECT
-    @Select("SELECT r.roomName , m.meetNum , m.meetTitle , m.meetDate FROM testDB.room as r left join meeting as m on r.roomNum = m.roomNum where r.roomNum = #{roomNum}")
+    @Select("SELECT r.roomName , m.meetNum , m.meetTitle , m.meetDate, m.meetId FROM testDB.room as r left join testDB.meeting as m on r.roomNum = m.roomNum where r.roomNum = #{roomNum}")
     ArrayList<ReadMeetingDTO> readMeeting(ReadMeetingDTO readMeetingDTO);
 
     // meeting 삭제(해당 meeting의 meetNum을 갖고 있는 댓글들 먼저 삭제하게 만들 것)
@@ -186,4 +194,9 @@ public interface UdangDAO {
 
     @Select("select meetingRoomTitle , meetingRoomHost from testDB.meetingRoom where roomNum = #{roomNum} and meetingRoomNum = #{meetingRoomNum}")
     ArrayList<ReadMeetingRoomInDTO> readMeetingRoomInDTO(ReadMeetingRoomInDTO dto);
+
+
+    // Meetingroom 회의 상태 수정(방 나갔을 시)
+    @Update("UPDATE testDB.meetingRoom SET meetingCheck = 1 WHERE roomNum = #{roomNum}")
+    int UpdateMeetingState(UpdateMeetingStateDTO updateMeetingStateDTO);
 }

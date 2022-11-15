@@ -12,4 +12,5 @@ public class ReadRoomRDTO {
     private String roomName;
     private String roomHost;
     private int roomMember;
+    private String id;
 }

@@ -15,5 +15,6 @@ public class ReadMeetingDTO {
     private int meetNum;
     private String meetTitle;
     private String meetDate;
+    private String meetId;
 
 }

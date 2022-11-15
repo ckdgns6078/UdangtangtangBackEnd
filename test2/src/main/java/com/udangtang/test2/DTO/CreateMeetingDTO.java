@@ -12,4 +12,5 @@ public class CreateMeetingDTO {
     private String meetTitle;
     private String meetDate;
     private int meetingRoomNum;
+    private int meetId;
 }

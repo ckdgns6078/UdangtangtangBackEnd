@@ -12,5 +12,6 @@ public class ReadMeetingRoomDTO {
     private int meetingRoomNum;
     private String meetingRoomTitle;
     private String meetingRoomHost;
+    private int meetId;
 
 }

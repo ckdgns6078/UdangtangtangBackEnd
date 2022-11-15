@@ -28,6 +28,35 @@ public class UdangController {
     //session 검사 method
 
 
+    // [search] 방 찾기
+    @PostMapping("searchRoom")
+    public ArrayList<ReadRoomRDTO> searchRoom(@RequestBody ReadRoomRDTO readRoomDTO){
+        ArrayList<ReadRoomRDTO> list = new ArrayList<>();
+        try {
+            list = udangDAO.searchRoom(readRoomDTO);
+            return list;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    // [search] 회의목록 찾기
+    @PostMapping("searchMeeting")
+    public ArrayList<ReadMeetingDTO> searchMeeting(@RequestBody ReadMeetingDTO readMeetingDTO){
+        ArrayList<ReadMeetingDTO> list = new ArrayList<>();
+        try {
+            list = udangDAO.searchMeeting(readMeetingDTO);
+            return list;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
     //회원가입 및 로그인 더 해야됨
     @PostMapping("login")
     public boolean login(@RequestBody UserDTO userDTO){
@@ -278,6 +307,7 @@ public class UdangController {
     // meeting 가져오기 r
     @PostMapping ("readMeeting")
     public ArrayList<ReadMeetingDTO> readMeeting(@RequestBody ReadMeetingDTO readMeetingDTO) {
+        System.out.println("readMeetingDTO : " + readMeetingDTO);
         ArrayList<ReadMeetingDTO> readMeetingList = new ArrayList<>();
         try{
             readMeetingList = udangDAO.readMeeting(readMeetingDTO);
@@ -317,6 +347,12 @@ public class UdangController {
         String token = "";
         String resultId = "";
         String contentsText = "";
+        System.out.println("-------------------------- getroomNum값 : " + recordDTO.getRoomNum());
+        System.out.println("-------------------------- getmeetNum값 : " + recordDTO.getMeetNum());
+
+
+
+
 //        RecordDTO recordDTO = new RecordDTO();
 
 
@@ -380,9 +416,13 @@ public class UdangController {
     // Contents 내용 가져오기 r
     @PostMapping("readContents")
     public ArrayList<ReadContentsDTO> readContents(@RequestBody ReadContentsDTO readContentsDTO){
+        System.out.println(readContentsDTO);
         ArrayList<ReadContentsDTO> list;
         try{
             list = udangDAO.readContents(readContentsDTO);
+//            String text = readContentsDTO.getContentsText();
+//            String changeText = text.replace("/", "\n");
+//            readContentsDTO.setContentsText(changeText);
 
             return list;
         }catch(Exception e) {
@@ -517,19 +557,18 @@ public class UdangController {
             return null;
         }
     }
-    //file 타입 전송
-//    @PostMapping("/yTest")
-//    public void downloadFile3(@RequestBody File file){
-//            System.out.println(file);
-//
-//    }
-//    public String post(@RequestBody BlobType data) {
-//        System.out.println(data);
-//
-//        return "나 값이 들어온 것 같음";
-//    }
 
-
+//    @PostMapping("updateMeetingState")
+//    public boolean updateMeetingState(@RequestBody UpdateMeetingStateDTO updateMeetingStateDTO){
+//        try {
+//            udangDAO.UpdateMeetingState(updateMeetingStateDTO);
+//            return true;
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            System.out.println("meetingState 오류");
+//            return false;
+//        }
+//    }
 
 }
 
